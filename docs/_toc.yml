@@ -1,17 +1,16 @@
 format: jb-book
 root: README
 
+
 parts:
-   - caption: Introduction to Data Goods
-  #   numbered: True
-     chapters:
+  - caption: Introduction to Data Goods
+    chapters:
       - file: docs/introduction-to-data-goods
       - file: docs/data
- - caption: Data Products
+  - caption: Data Products
     chapters:
       - file: notebooks/conflict/README
-      - file: notebooks/agriculture/README
-      - file: notebooks/mobility/README
-  - caption: Acknowledgements
-    chapters:
-      - file: docs/team
+      - file: notebooks/agriculture/README     
+  # - caption: Acknowledgements
+  #   chapters:
+  #     - file: docs/team
