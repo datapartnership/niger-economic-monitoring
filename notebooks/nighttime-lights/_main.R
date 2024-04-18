@@ -8,7 +8,8 @@ data_dir <- file.path("/Users", "rmarty", "Library", "CloudStorage", "OneDrive-S
                       "Development Data Partnership - Niger Economic Monitor", "Data")
 
 boundaries_dir <- file.path(data_dir, "Boundaries")
-ntl_dir <- file.path(data_dir, "Nighttime Lights")
+ntl_dir  <- file.path(data_dir, "Nighttime Lights")
+city_dir <- file.path(data_dir, "Cities")
 
 # Packages ---------------------------------------------------------------------
 library(dplyr)
@@ -16,5 +17,6 @@ library(lubridate)
 library(sf)
 library(ggplot2)
 library(leaflet)
+library(haven)
 library(terra)
-#library(blackmarbler)
+library(blackmarbler)
