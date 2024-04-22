@@ -170,7 +170,7 @@ city_df %>%
              scales = "free_y")
 ```
 
-# Percent change in nighttime lights from 2023 to 2034
+# Percent change in nighttime lights from 2023 to 2024
 
 Below we show the percent change in nighttime lights for each month in 2024 relative to the same month in 2023.
 
@@ -222,7 +222,8 @@ adm1_pc_df %>%
   labs(x = "Month",
        y = "Percent change",
        title = "Percent change in nighttime lights across regions from 2023 to 2024") +
-  facet_wrap(~ADM1_FR)
+  facet_wrap(~ADM1_FR,
+             scales = "free_y")
 ```
 
 
