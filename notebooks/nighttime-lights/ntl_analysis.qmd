@@ -1,0 +1,240 @@
+---
+title: "Nighttime Lights Analysis"
+author: "Data Lab"
+date: "4/18/2024"
+format: 
+  html:
+    toc: true
+    code-fold: true
+---
+
+Nighttime lights have become a commonly used resource to estimate changes in local economic activity. This section shows where nighttime lights are concentrated across Syria and observed changes over time.
+
+# Data
+
+We use nighttime lights data from the VIIRS Black Marble dataset. Raw nighttime lights data requires correction due to cloud cover and stray light, such as lunar light. The Black Marble dataset applies advanced algorithms to correct raw nighttime light values and calibrate data so that trends in lights over time can be meaningfully analyzed. From VIIRS Black Marble, we use data from January 2012 through present—where data is available at a 500-meter resolution.
+
+```{r}
+#| include: false
+
+#### Setup
+library(tidyverse)
+library(sf)
+library(leaflet)
+library(leaflet.providers)
+library(ggpubr)
+library(terra)
+
+data_dir <- file.path("/Users", 
+                      "rmarty", 
+                      "Library", 
+                      "CloudStorage", 
+                      "OneDrive-SharedLibraries-WBG", 
+                      "Development Data Partnership - Niger Economic Monitor", 
+                      "Data")
+
+boundaries_dir <- file.path(data_dir, "Boundaries")
+ntl_dir  <- file.path(data_dir, "Nighttime Lights")
+city_dir <- file.path(data_dir, "Cities")
+
+theme_custom <- theme(strip.background = element_blank(),
+                      strip.text = element_text(face = "bold"))
+
+```
+
+# Map of nighttime lights
+
+We first show a map of nighttime lights. Most of the country is dark, with lights concentrated within cities.
+
+```{r}
+## Load boundaries
+adm0_sf <- read_sf(file.path(boundaries_dir, 
+                             "ner_adm_ignn_20230720_ab_shp",
+                             "NER_admbnda_adm0_IGNN_20230720.shp"))
+
+## Load/prep raster
+prep_r <- function(year_i){
+  r <- rast(file.path(ntl_dir, "individual_rasters", "annually",
+                      paste0("VNP46A4_NearNadir_Composite_Snow_Free_qflag_t",year_i,".tif")))
+  r <- r %>% mask(adm0_sf)
+  r[][r[] == 0] <- NA
+  r[] <- log(r[] + 1)
+  r[] <- log(r[] + 1)
+  return(r)
+}
+
+r_2012 <- prep_r(2012)
+r_2013 <- prep_r(2013)
+r_2014 <- prep_r(2014)
+r_2015 <- prep_r(2015)
+r_2016 <- prep_r(2016)
+r_2017 <- prep_r(2017)
+r_2018 <- prep_r(2018)
+r_2019 <- prep_r(2019)
+r_2020 <- prep_r(2020)
+r_2021 <- prep_r(2021)
+r_2022 <- prep_r(2022)
+r_2023 <- prep_r(2023)
+
+## Make map
+pal <- colorNumeric(c("yellow", "orange", "red"), unique(c(r_2012[],
+                                                           r_2013[],
+                                                           r_2014[],
+                                                           r_2015[],
+                                                           r_2016[],
+                                                           r_2017[],
+                                                           r_2018[],
+                                                           r_2019[],
+                                                           r_2020[],
+                                                           r_2021[],
+                                                           r_2022[],
+                                                           r_2023[])),
+                    na.color = "transparent")
+
+leaflet() %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  addRasterImage(r_2012, colors = pal, opacity = 1, group = "2012") %>%
+  addRasterImage(r_2013, colors = pal, opacity = 1, group = "2013") %>%
+  addRasterImage(r_2014, colors = pal, opacity = 1, group = "2014") %>%
+  addRasterImage(r_2015, colors = pal, opacity = 1, group = "2015") %>%
+  addRasterImage(r_2016, colors = pal, opacity = 1, group = "2016") %>%
+  addRasterImage(r_2017, colors = pal, opacity = 1, group = "2017") %>%
+  addRasterImage(r_2018, colors = pal, opacity = 1, group = "2018") %>%
+  addRasterImage(r_2019, colors = pal, opacity = 1, group = "2019") %>%
+  addRasterImage(r_2020, colors = pal, opacity = 1, group = "2020") %>%
+  addRasterImage(r_2021, colors = pal, opacity = 1, group = "2021") %>%
+  addRasterImage(r_2022, colors = pal, opacity = 1, group = "2022") %>%
+  addRasterImage(r_2023, colors = pal, opacity = 1, group = "2023") %>%
+  addLayersControl(
+    baseGroups = paste0(2012:2023),
+    options = layersControlOptions(collapsed=FALSE)
+  )
+```
+
+
+# Trends in nighttime lights within past 5 years
+
+Below we show trends in nighttime lights from January 2019 through present at the monthly level
+
+```{r}
+adm0_df <- readRDS(file.path(ntl_dir, "aggregated_appended", "adm0_monthly.Rds"))
+
+adm0_df %>%
+  filter(date >= ymd("2019-01-01")) %>%
+  ggplot() +
+  geom_vline(xintercept = ymd("2023-07-26"),
+             color = "red") +
+  geom_col(aes(x = date,
+               y = ntl_sum)) +
+  theme_classic2() +
+  labs(x = NULL,
+       y = "Luminosity",
+       title = "Trends in Nighttime Lights Across Niger")
+```
+
+```{r}
+adm1_df <- readRDS(file.path(ntl_dir, "aggregated_appended", "adm1_monthly.Rds"))
+
+adm1_df %>%
+  filter(date >= ymd("2019-01-01")) %>%
+  ggplot() +
+  geom_vline(xintercept = ymd("2023-07-26"),
+             color = "red") +
+  geom_col(aes(x = date,
+               y = ntl_sum)) +
+  theme_classic2() +
+  theme_custom +
+  labs(x = NULL,
+       y = "Luminosity",
+       title = "Trends in Nighttime Lights Across Regions") +
+  facet_wrap(~ADM1_FR,
+             scales = "free_y")
+```
+
+```{r}
+city_df <- readRDS(file.path(ntl_dir, "aggregated_appended", "city_monthly.Rds"))
+
+city_df %>%
+  filter(date >= ymd("2019-01-01")) %>%
+  ggplot() +
+  geom_vline(xintercept = ymd("2023-07-26"),
+             color = "red") +
+  geom_col(aes(x = date,
+               y = ntl_sum)) +
+  theme_classic2() +
+  theme_custom +
+  labs(x = NULL,
+       y = "Luminosity",
+       title = "Trends in Nighttime Lights Across Top Cities") +
+  facet_wrap(~name,
+             scales = "free_y")
+```
+
+# Percent change in nighttime lights from 2023 to 2024
+
+Below we show the percent change in nighttime lights for each month in 2024 relative to the same month in 2023.
+
+```{r}
+## Load data
+adm0_df <- readRDS(file.path(ntl_dir, "aggregated_appended", "adm0_monthly.Rds"))
+adm1_df <- readRDS(file.path(ntl_dir, "aggregated_appended", "adm1_monthly.Rds"))
+
+## Add dummpy ADM1 variable so function will more easily work on both datasets
+adm0_df$ADM1_FR <- ""
+
+## Function to prep data as percent changes
+prep_month_pc <- function(adm_df){
+  
+  adm_long_df <- adm_df %>%
+    filter(date >= ymd("2023-01-01"),
+           date <= ymd("2024-06-01")) %>%
+    select(ADM1_FR, date, ntl_sum) %>%
+    mutate(month = date %>% month,
+           year = date %>% year) %>%
+    pivot_wider(id_cols = c(ADM1_FR, month),
+                values_from = ntl_sum,
+                names_from = year) %>%
+    filter(!is.na(`2024`)) %>%
+    mutate(pc = (`2024` - `2023`) / `2023` * 100)
+  
+  return(adm_long_df)
+}
+
+adm0_pc_df <- prep_month_pc(adm0_df)
+adm1_pc_df <- prep_month_pc(adm1_df)
+
+## Maps
+adm0_pc_df %>%
+  ggplot() +
+  geom_col(aes(x = month,
+               y = pc)) +
+  theme_classic2() +
+  labs(x = "Month",
+       y = "Percent change",
+       title = "Percent change in nighttime lights across Niger from 2023 to 2024")
+
+adm1_pc_df %>%
+  ggplot() +
+  geom_col(aes(x = month,
+               y = pc)) +
+  theme_classic2() +
+  theme_custom +
+  labs(x = "Month",
+       y = "Percent change",
+       title = "Percent change in nighttime lights across regions from 2023 to 2024") +
+  facet_wrap(~ADM1_FR,
+             scales = "free_y")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
