@@ -8,9 +8,9 @@ adm0_sf <- read_sf(file.path(boundaries_dir, "ner_adm_ignn_20230720_ab_shp",
 adm1_sf <- read_sf(file.path(boundaries_dir, "ner_adm_ignn_20230720_ab_shp", 
                              "NER_admbnda_adm1_IGNN_20230720.shp"))
 adm2_sf <- read_sf(file.path(boundaries_dir, "ner_adm_ignn_20230720_ab_shp", 
-                             "NER_admbnda_adm1_IGNN_20230720.shp"))
+                             "NER_admbnda_adm2_IGNN_20230720.shp"))
 adm3_sf <- read_sf(file.path(boundaries_dir, "ner_adm_ignn_20230720_ab_shp", 
-                             "NER_admbnda_adm1_IGNN_20230720.shp"))
+                             "NER_admbnda_adm3_IGNN_20230720.shp"))
 
 city_df      <- read.csv(file.path(city_dir, "niger_cities.csv"))
 city_sf      <- st_as_sf(city_df, coords = c("longitude", "latitude"), crs = 4326)
