@@ -7,6 +7,9 @@ git_dir <- file.path("/Users", "rmarty", "Library", "CloudStorage", "OneDrive-WB
 data_dir <- file.path("/Users", "rmarty", "Library", "CloudStorage", "OneDrive-SharedLibraries-WBG", 
                       "Development Data Partnership - Niger Economic Monitor", "Data")
 
+data_dir <- file.path("~/Dropbox/World Bank/Side Work/", 
+                      "Development Data Partnership - Niger Economic Monitor", "Data")
+
 boundaries_dir <- file.path(data_dir, "Boundaries")
 ntl_dir  <- file.path(data_dir, "Nighttime Lights")
 city_dir <- file.path(data_dir, "Cities")
@@ -20,3 +23,5 @@ library(leaflet)
 library(haven)
 library(terra)
 library(blackmarbler)
+library(stringr)
+library(exactextractr)

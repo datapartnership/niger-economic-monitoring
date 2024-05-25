@@ -1,7 +1,9 @@
 # Download Nighttime Lights
 
 ## Bearer token
-bearer <- read.csv("/Users/rmarty/Library/CloudStorage/OneDrive-WBG/Webscraping API Keys/bearer_bm.csv") %>%
+# bearer <- read.csv("/Users/rmarty/Library/CloudStorage/OneDrive-WBG/Webscraping API Keys/bearer_bm.csv") %>%
+#   pull(token)
+bearer <- read.csv("~/Desktop/bearer_bm.csv") %>%
   pull(token)
 
 ## Define ROI
