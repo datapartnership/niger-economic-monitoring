@@ -24,6 +24,9 @@ library(leaflet)
 library(leaflet.providers)
 library(ggpubr)
 library(terra)
+library(sparkline)
+library(htmltools) 
+library(htmlwidgets)
 
 data_dir <- file.path("/Users", 
                       "rmarty", 
@@ -170,7 +173,373 @@ city_df %>%
              scales = "free_y")
 ```
 
-# Percent change in nighttime lights from 2023 to 2034
+# Maps of change in nighttime lights
+
+## Pixel level
+
+```{r}
+r_load_month_pc <- function(month_i){
+  r_b1 <- rast(file.path(ntl_dir, "individual_rasters", "monthly",
+                         paste0("VNP46A3_NearNadir_Composite_Snow_Free_qflag_t","2023_01",".tif")))
+  r_b2 <- rast(file.path(ntl_dir, "individual_rasters", "monthly",
+                         paste0("VNP46A3_NearNadir_Composite_Snow_Free_qflag_t","2023_02",".tif")))
+  r_b3 <- rast(file.path(ntl_dir, "individual_rasters", "monthly",
+                         paste0("VNP46A3_NearNadir_Composite_Snow_Free_qflag_t","2023_03",".tif")))
+  r_b4 <- rast(file.path(ntl_dir, "individual_rasters", "monthly",
+                         paste0("VNP46A3_NearNadir_Composite_Snow_Free_qflag_t","2023_04",".tif")))
+  r_b5 <- rast(file.path(ntl_dir, "individual_rasters", "monthly",
+                         paste0("VNP46A3_NearNadir_Composite_Snow_Free_qflag_t","2023_05",".tif")))
+  r_b6 <- rast(file.path(ntl_dir, "individual_rasters", "monthly",
+                         paste0("VNP46A3_NearNadir_Composite_Snow_Free_qflag_t","2023_06",".tif")))
+  r_e <- rast(file.path(ntl_dir, "individual_rasters", "monthly",
+                        paste0("VNP46A3_NearNadir_Composite_Snow_Free_qflag_t",month_i,".tif")))
+  
+  r_b <- r_b1
+  r_b[] <- (r_b1[] + r_b2[] + r_b3[] + r_b4[] + r_b5[] + r_b6[]) / 6
+  
+  r_e[] <- (r_e[] - r_b[]) / r_b[] * 100
+  r_e[][r_b[] <= 0.5] <- NA
+  
+  r_e[][r_e[] >= 100] <- 100
+  r_e[][r_e[] <= -100] <- -100
+  
+  r_e <- r_e %>% crop(adm0_sf) %>% mask(adm0_sf)
+  
+  return(r_e)
+}
+
+r_23_07 <- r_load_month_pc("2023_07")
+r_23_08 <- r_load_month_pc("2023_08")
+r_23_09 <- r_load_month_pc("2023_09")
+r_23_10 <- r_load_month_pc("2023_10")
+r_23_11 <- r_load_month_pc("2023_11")
+r_23_12 <- r_load_month_pc("2023_12")
+r_24_01 <- r_load_month_pc("2024_01")
+r_24_02 <- r_load_month_pc("2024_02")
+r_24_03 <- r_load_month_pc("2024_03")
+
+## Make map
+r_values <- unique(c(r_23_07[],
+                     r_23_08[],
+                     r_23_09[],
+                     r_23_10[],
+                     r_23_11[],
+                     r_23_12[],
+                     r_24_01[],
+                     r_24_02[],
+                     r_24_03[]))
+
+pal <- colorNumeric(c("red", "white", "green"), r_values,
+                    na.color = "transparent")
+
+leaflet() %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  addRasterImage(r_23_07, colors = pal, opacity = 1, group = "2023-07") %>%
+  addRasterImage(r_23_08, colors = pal, opacity = 1, group = "2023-08") %>%
+  addRasterImage(r_23_09, colors = pal, opacity = 1, group = "2023-09") %>%
+  addRasterImage(r_23_10, colors = pal, opacity = 1, group = "2023-10") %>%
+  addRasterImage(r_23_11, colors = pal, opacity = 1, group = "2023-11") %>%
+  addRasterImage(r_23_12, colors = pal, opacity = 1, group = "2023-12") %>%
+  addRasterImage(r_24_01, colors = pal, opacity = 1, group = "2024-01") %>%
+  addRasterImage(r_24_02, colors = pal, opacity = 1, group = "2024-02") %>%
+  addRasterImage(r_24_03, colors = pal, opacity = 1, group = "2024-03") %>%
+  addLayersControl(
+    baseGroups = c("2023-07",
+                   "2023-08",
+                   "2023-09",
+                   "2023-10",
+                   "2023-11",
+                   "2023-12",
+                   "2024-01",
+                   "2024-02",
+                   "2024-03"),
+    options = layersControlOptions(collapsed=FALSE)
+  ) %>%
+  addLegend("bottomright", pal = pal, values = r_values,
+            title = "% Change in NTL<br>relative to<br>Jan-June 2023",
+            opacity = 1,
+            labels = c("< -100", "-50", "0", "50", "> 100")
+  )
+```
+## ADM level
+
+```{r}
+adm3_sf <- read_sf(file.path(boundaries_dir, 
+                             "ner_adm_ignn_20230720_ab_shp",
+                             "NER_admbnda_adm3_IGNN_20230720.shp"))
+
+adm3_sf <- adm3_sf %>%
+  select(-date)
+
+adm3_df <- readRDS(file.path(ntl_dir, "aggregated_appended", "adm3_monthly.Rds"))
+
+adm3_df <- adm3_df %>%
+  mutate(baseline = (date %in% c(ymd("2023-01-01"),
+                                 ymd("2023-02-01"),
+                                 ymd("2023-03-01"),
+                                 ymd("2023-04-01"),
+                                 ymd("2023-05-01"),
+                                 ymd("2023-06-01")))) %>%
+  group_by(ADM3_PCODE) %>%
+  mutate(ntl_sum_baseline = mean(ntl_sum[baseline %in% 1])) %>%
+  ungroup() %>%
+  
+  mutate(ntl_pc = (ntl_sum - ntl_sum_baseline) / ntl_sum_baseline * 100,
+         ntl_change = ntl_sum - ntl_sum_baseline) %>%
+  select(date, ADM3_PCODE, ntl_pc, ntl_change, ntl_sum, ntl_sum_baseline) %>%
+  
+  filter(date >= ymd("2023-01-01")) 
+
+adm3_df$ntl_sum_baseline_dates <- adm3_df$ntl_sum
+adm3_df$ntl_sum_baseline_dates[adm3_df$date >= ymd("2023-07-01")] <- NA
+
+make_ntl_date <- function(adm3_df, ym_i){
+  adm3_df[[paste0("ntl_sum_", ym_i)]] <- adm3_df$ntl_sum
+  adm3_df[[paste0("ntl_sum_", ym_i)]][adm3_df$date != ymd(paste0(ym_i, "-01"))] <- NA
+  return(adm3_df)
+}
+
+adm3_df <- adm3_df %>%
+  make_ntl_date("2023_07") %>%
+  make_ntl_date("2023_08") %>%
+  make_ntl_date("2023_09") %>%
+  make_ntl_date("2023_10") %>%
+  make_ntl_date("2023_11") %>%
+  make_ntl_date("2023_12") %>%
+  make_ntl_date("2024_01") %>%
+  make_ntl_date("2024_02") %>%
+  make_ntl_date("2024_03")
+
+adm3_df$ntl_pc[adm3_df$ntl_pc >= 100]  <- 100
+adm3_df$ntl_pc[adm3_df$ntl_pc <= -100] <- -100
+
+## Add sparkline
+ntl_date_color <- "black"
+
+adm3_df_line <- adm3_df %>%
+  filter(date >= ymd("2023-01-01")) %>%
+  arrange(date) %>%
+  split(.$ADM3_PCODE) %>% 
+  map_df(~{
+    l_ntl_all <- sparkline(.x$ntl_sum,
+                           type='bar',
+                           barColor="orange",
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = 'orange', 
+                           highlightSpotColor = 'orange')
+    l_ntl_base <- sparkline(.x$ntl_sum_baseline_dates,
+                            type='bar',
+                            barColor="blue",
+                            chartRangeMin = 0,
+                            chartRangeMax = 8,
+                            width = 100,
+                            height = 50,
+                            tooltipChartTitle = "Nighttime Lights",
+                            highlightLineColor = 'blue', 
+                            highlightSpotColor = 'blue')
+    l_ntl_2023_07 <- sparkline(.x$ntl_sum_2023_07,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl_2023_08 <- sparkline(.x$ntl_sum_2023_08,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl_2023_09 <- sparkline(.x$ntl_sum_2023_09,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl_2023_10 <- sparkline(.x$ntl_sum_2023_10,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl_2023_11 <- sparkline(.x$ntl_sum_2023_11,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl_2023_12 <- sparkline(.x$ntl_sum_2023_12,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl_2024_01 <- sparkline(.x$ntl_sum_2024_01,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl_2024_02 <- sparkline(.x$ntl_sum_2024_02,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+      l_ntl_2024_03 <- sparkline(.x$ntl_sum_2024_03,
+                           type='bar',
+                           barColor=ntl_date_color,
+                           chartRangeMin = 0,
+                           chartRangeMax = 8,
+                           width = 100,
+                           height = 50,
+                           tooltipChartTitle = "Nighttime Lights",
+                           highlightLineColor = ntl_date_color, 
+                           highlightSpotColor = ntl_date_color)
+    l_ntl <- spk_composite(l_ntl_all, 
+                           l_ntl_base)
+    data.frame(l_ntl = as.character(htmltools::as.tags(l_ntl)))
+  }, .id = 'ADM3_PCODE') 
+
+## Merge data with sf object
+adm3_sf <- adm3_sf %>%
+  right_join(adm3_df, by = c("ADM3_PCODE")) %>%
+  left_join(adm3_df_line, by = "ADM3_PCODE")
+
+adm3_sf <- adm3_sf %>%
+  mutate(popup = paste0("<h4>", ADM3_FR, "</h4>",
+                        "<b>NTL ", substring(date, 1, 7), ":</b> ", round(ntl_sum, 2), "<br>",
+                        "<b>NTL Baseline:</b> ", round(ntl_sum_baseline, 2), "<br>",
+                        "<b>Trends in NTL since Jan 2023</b><br><br>",
+                        "<span style='color: blue;'>Blue</span> = Jan - June 2023<br>",
+                        l_ntl))
+
+## Make map
+r_values <- unique(adm3_sf$ntl_pc)
+
+pal <- colorNumeric(c("red", "white", "green"), r_values,
+                    na.color = "transparent")
+
+line_color <- "black"
+fill_opacity <- 0.8
+opacity <- 0.5
+
+add_deps <- function(dtbl, name, pkg = name) {
+  tagList(
+    dtbl,
+    htmlwidgets::getDependency(name, pkg)
+  )
+}
+
+leaflet() %>%
+  addProviderTiles(providers$OpenStreetMap.HOT) %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2023-07-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2023-07") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2023-08-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2023-08") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2023-09-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2023-09") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2023-10-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2023-10") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2023-11-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2023-11") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2023-12-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2023-12") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2024-01-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2024-01") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2024-02-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2024-02") %>%
+  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2024-03-01"),], 
+              fillColor = ~pal(ntl_pc), 
+              color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
+              label = ~lapply(popup, HTML),
+              group = "2024-03") %>%
+  onRender("function(el,x) {
+      this.on('tooltipopen', function() {HTMLWidgets.staticRender();})
+    }") %>%
+  addLayersControl(
+    baseGroups = c("2023-07",
+                   "2023-08",
+                   "2023-09",
+                   "2023-10",
+                   "2023-11",
+                   "2023-12",
+                   "2024-01",
+                   "2024-02",
+                   "2024-03"),
+    options = layersControlOptions(collapsed=FALSE)
+  ) %>%
+  addLegend("bottomright", pal = pal, values = r_values,
+            title = "% Change in NTL<br>relative to<br>Jan-June 2023",
+            opacity = 1,
+            labels = c("< -100", "-50", "0", "50", "> 100")
+  ) %>%
+  add_deps("sparkline") %>%
+  browsable()
+
+```
+
+
+# Percent change in nighttime lights from 2023 to 2024
 
 Below we show the percent change in nighttime lights for each month in 2024 relative to the same month in 2023.
 
@@ -222,7 +591,8 @@ adm1_pc_df %>%
   labs(x = "Month",
        y = "Percent change",
        title = "Percent change in nighttime lights across regions from 2023 to 2024") +
-  facet_wrap(~ADM1_FR)
+  facet_wrap(~ADM1_FR,
+             scales = "free_y")
 ```
 
 
