@@ -440,12 +440,13 @@ adm3_df_line <- adm3_df %>%
   }, .id = 'ADM3_PCODE') 
 
 ## Merge data with sf object
+adm3_df <- adm3_df[!is.na(adm3_df$ADM3_PCODE),]
 adm3_sf <- adm3_sf %>%
   right_join(adm3_df, by = c("ADM3_PCODE")) %>%
   left_join(adm3_df_line, by = "ADM3_PCODE")
 
 adm3_sf <- adm3_sf %>%
-  mutate(popup = paste0("<h4>", ADM3_FR, "</h4>",
+  dplyr::mutate(popup = paste0("<h4>", ADM3_FR, "</h4>",
                         "<b>NTL ", substring(date, 1, 7), ":</b> ", round(ntl_sum, 2), "<br>",
                         "<b>NTL Baseline:</b> ", round(ntl_sum_baseline, 2), "<br>",
                         "<b>Trends in NTL since Jan 2023</b><br><br>",
@@ -471,7 +472,7 @@ add_deps <- function(dtbl, name, pkg = name) {
 
 leaflet() %>%
   addProviderTiles(providers$OpenStreetMap.HOT) %>%
-  addPolygons(data = adm3_sf[adm3_sf$date == ymd("2023-07-01"),], 
+  addPolygons(data = adm3_sf[adm3_sf$date %in% ymd("2023-07-01"),], 
               fillColor = ~pal(ntl_pc), 
               color = line_color, opacity = opacity, fillOpacity = fill_opacity, 
               label = ~lapply(popup, HTML),
