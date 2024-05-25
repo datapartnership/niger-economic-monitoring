@@ -30,7 +30,7 @@ for(unit in c("adm0", "adm1", "adm2", "adm3", "city")){
   if(unit == "city") unit_sf <- city_buff_sf
   
   #### Loop through time period
-  for(time_period in c("annually", "monthly", "daily")){
+  for(time_period in c("annually", "monthly")){ # "daily"
     
     dir.create(file.path(ntl_dir, "aggregated_individual", unit, time_period))
     
@@ -92,7 +92,7 @@ for(unit in c("adm0", "adm1", "adm2", "adm3", "city")){
 
 # Append files -----------------------------------------------------------------
 for(unit in c("adm0", "adm1", "adm2", "adm3", "city")){
-  for(time_period in c("annually", "monthly", "daily")){
+  for(time_period in c("annually", "monthly", "daily")){ # "daily"
     
     ntl_df <- file.path(ntl_dir, "aggregated_individual", unit, time_period) %>%
       list.files(full.names = T) %>%
