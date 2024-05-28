@@ -13,7 +13,11 @@ parts:
         sections:
           - file: notebooks/conflict/conflictAnalysis.ipynb
       - file: notebooks/agriculture/report.ipynb 
-      - file: notebooks/nighttime-lights/ntl_analysis.html
+      - url: https://raw.githack.com/datapartnership/niger-economic-monitoring/main/notebooks/nighttime-lights/ntl_analysis.html
+        title: Nighttime Lights
+      - file: notebooks/movement/README
+        sections:
+          - file: notebooks/movement/colocation.ipynb
   - caption: Acknowledgements
     chapters:
       - file: docs/team
