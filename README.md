@@ -1,4 +1,4 @@
-# Niger Economic Monitor
+# Niger Economic Monitoring
 
 > Using Alternative Data to Understand Impact of Coup and Sanctions on the Niger Economy 
 
