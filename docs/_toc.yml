@@ -10,7 +10,12 @@ parts:
   - caption: Data Products
     chapters:
       - file: notebooks/conflict/README
-      - file: notebooks/agriculture/README     
-  # - caption: Acknowledgements
-  #   chapters:
-  #     - file: docs/team
+        sections:
+          - file: notebooks/conflict/conflictAnalysis.ipynb
+      - file: notebooks/agriculture/README 
+      - file: notebooks/nighttime-lights/README
+        sections:
+          - file: notebooks/nighttime-lights/ntl_analysis.html 
+  - caption: Acknowledgements
+    chapters:
+      - file: docs/team
