@@ -13,9 +13,7 @@ parts:
         sections:
           - file: notebooks/conflict/conflictAnalysis.ipynb
       - file: notebooks/agriculture/report.ipynb 
-      - file: notebooks/nighttime-lights/README
-        sections:
-          - file: notebooks/nighttime-lights/ntl_analysis.html 
+      - file: notebooks/nighttime-lights/ntl_analysis.html
   - caption: Acknowledgements
     chapters:
       - file: docs/team
