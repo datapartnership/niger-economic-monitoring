@@ -27,12 +27,13 @@ dynamic = ["version"]
 
 requires-python = ">=3.10"
 dependencies = [
-	"pandas>=2", 
 	"earthengine-api>=0.1.384",
+	"folium>=0.15.1",
 	"geemap>=0.30.4",
 	"geopandas>=0.14.1",
-	"folium>=0.15.1",
+	"pandas>=2", 
 	"python-dotenv>= 1.0.1",
+	"requests>=2.28.1",
 ]
 [project.optional-dependencies]
 docs = [
