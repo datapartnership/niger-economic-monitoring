@@ -1,9 +1,12 @@
 name: Publish to GitHub Pages
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
+  schedule:
+    - cron: "0 0 * * 0"
 
 jobs:
   build:
@@ -13,13 +16,20 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: 3.11
           cache: "pip"
-      - name: Dependencies
+      - name: Install Dependencies
         run: |
-          if [ -f docs/requirements.txt ]; then pip install -r docs/requirements.txt; fi
+          if [ -f pyproject.toml ]; then pip install "."; fi
           if [ -f pyproject.toml ]; then pip install ".[docs]"; fi
       - name: Build Jupyter Book
+        env:
+          PROJECT_ID: ${{ secrets.PROJECT_ID }}
+          PRIVATE_KEY_ID: ${{ secrets.PRIVATE_KEY_ID }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          CLIENT_EMAIL: ${{ secrets.CLIENT_EMAIL }}
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_X509_CERT_URL: ${{ secrets.CLIENT_X509_CERT_URL }}
         run: |
           jupyter-book build . --config docs/_config.yml --toc docs/_toc.yml
       - name: Deploy
