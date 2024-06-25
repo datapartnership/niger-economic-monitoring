@@ -30,7 +30,7 @@ for(unit in c("adm0", "adm1", "adm2", "adm3", "city")){
   if(unit == "city") unit_sf <- city_buff_sf
   
   #### Loop through time period
-  for(time_period in c("annually", "monthly", "daily")){
+  for(time_period in c("annually", "monthly")){ # "daily"
     
     dir.create(file.path(ntl_dir, "aggregated_individual", unit, time_period))
     
@@ -92,18 +92,34 @@ for(unit in c("adm0", "adm1", "adm2", "adm3", "city")){
 
 # Append files -----------------------------------------------------------------
 for(unit in c("adm0", "adm1", "adm2", "adm3", "city")){
-  for(time_period in c("annually", "monthly", "daily")){
+  for(time_period in c("annually", "monthly")){ # "daily"
     
     ntl_df <- file.path(ntl_dir, "aggregated_individual", unit, time_period) %>%
       list.files(full.names = T) %>%
       map_df(readRDS)
     
+    # Add moving average for monthly data
+    if(time_period == "monthly"){
+      
+      if(unit == "adm0") ntl_df$name <- ntl_df$ADM0_FR
+      if(unit == "adm1") ntl_df$name <- ntl_df$ADM1_PCODE
+      if(unit == "adm2") ntl_df$name <- ntl_df$ADM2_PCODE
+      if(unit == "adm3") ntl_df$name <- ntl_df$ADM3_PCODE
+      
+      ntl_df <- ntl_df %>%
+        arrange(date) %>%
+        group_by(name) %>%
+        mutate(ntl_mean_3m_ma = slider::slide_dbl(ntl_mean, mean, .before = 3, .after = 3),
+               ntl_sum_3m_ma = slider::slide_dbl(ntl_sum, mean, .before = 3, .after = 3)) %>%
+        ungroup()
+    }
+    
     saveRDS(ntl_df, file.path(ntl_dir, "aggregated_appended", 
                               paste0(unit, "_", time_period, ".Rds")))
     
     write_dta(ntl_df, file.path(ntl_dir, "aggregated_appended", 
-                              paste0(unit, "_", time_period, ".dta")))
-
+                                paste0(unit, "_", time_period, ".dta")))
+    
   }
 }
 

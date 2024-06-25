@@ -1,7 +1,9 @@
 # Download Nighttime Lights
 
 ## Bearer token
-bearer <- read.csv("/Users/rmarty/Library/CloudStorage/OneDrive-WBG/Webscraping API Keys/bearer_bm.csv") %>%
+# bearer <- read.csv("/Users/rmarty/Library/CloudStorage/OneDrive-WBG/Webscraping API Keys/bearer_bm.csv") %>%
+#   pull(token)
+bearer <- read.csv("~/Desktop/bearer_bm.csv") %>%
   pull(token)
 
 ## Define ROI
@@ -27,12 +29,12 @@ month_r <- bm_raster(roi_sf = roi_sf,
                                           "individual_rasters",
                                           "monthly"))
 
-day_r <- bm_raster(roi_sf = roi_sf,
-                   product_id = "VNP46A2",
-                   date = seq.Date(from = ymd("2023-01-01"), to = Sys.Date(), by = "day"),
-                   bearer = bearer,
-                   output_location_type = "file",
-                   file_dir = file.path(ntl_dir, 
-                                        "individual_rasters",
-                                        "daily"))
+# day_r <- bm_raster(roi_sf = roi_sf,
+#                    product_id = "VNP46A2",
+#                    date = seq.Date(from = ymd("2023-01-01"), to = Sys.Date(), by = "day"),
+#                    bearer = bearer,
+#                    output_location_type = "file",
+#                    file_dir = file.path(ntl_dir, 
+#                                         "individual_rasters",
+#                                         "daily"))
 
