@@ -2,7 +2,7 @@
 title: "Nighttime Lights Analysis"
 author: "Data Lab"
 date: "4/18/2024"
-format: 
+format:
   html:
     toc: true
     code-fold: true
@@ -30,20 +30,20 @@ library(leaflet.providers)
 library(ggpubr)
 library(terra)
 library(sparkline)
-library(htmltools) 
+library(htmltools)
 library(htmlwidgets)
 library(WDI)
 library(janitor)
 
-# data_dir <- file.path("/Users", 
-#                       "rmarty", 
-#                       "Library", 
-#                       "CloudStorage", 
-#                       "OneDrive-SharedLibraries-WBG", 
-#                       "Development Data Partnership - Niger Economic Monitor", 
+# data_dir <- file.path("/Users",
+#                       "rmarty",
+#                       "Library",
+#                       "CloudStorage",
+#                       "OneDrive-SharedLibraries-WBG",
+#                       "Development Data Partnership - Niger Economic Monitor",
 #                       "Data")
 
-data_dir <- file.path("~/Dropbox/World Bank/Side Work/", 
+data_dir <- file.path("~/Dropbox/World Bank/Side Work/",
                       "Development Data Partnership - Niger Economic Monitor", "Data")
 
 boundaries_dir <- file.path(data_dir, "Boundaries")
@@ -61,7 +61,7 @@ We first show a map of nighttime lights. Most of the country is dark, with light
 
 ```{r}
 ## Load boundaries
-adm0_sf <- read_sf(file.path(boundaries_dir, 
+adm0_sf <- read_sf(file.path(boundaries_dir,
                              "ner_adm_ignn_20230720_ab_shp",
                              "NER_admbnda_adm0_IGNN_20230720.shp"))
 
@@ -151,7 +151,7 @@ gdp_long_df <- gdp_df %>%
 data_long_df <- bind_rows(
   gdp_long_df %>%
     dplyr::select(date, value, name),
-  
+
   adm0_df %>%
     dplyr::mutate(value = ntl_sum,
                   name = "Nighttime Lights") %>%
@@ -355,7 +355,7 @@ leaflet() %>%
 
 ```{r, warning=FALSE, message=FALSE}
 ## Polygon
-adm3_sf <- read_sf(file.path(boundaries_dir, 
+adm3_sf <- read_sf(file.path(boundaries_dir,
                              "ner_adm_ignn_20230720_ab_shp",
                              "NER_admbnda_adm3_IGNN_20230720.shp"))
 
@@ -418,8 +418,8 @@ adm3_data_sf <- adm3_data_sf %>%
 
 leaflet() %>%
   addProviderTiles(providers$CartoDB) %>%
-  addPolygons(data = adm3_data_sf, 
-              fillColor = ~pal(pc), 
+  addPolygons(data = adm3_data_sf,
+              fillColor = ~pal(pc),
               fillOpacity = 1,
               color = "black",
               weight = 1,
@@ -447,7 +447,7 @@ city_df$ADM1_FR <- city_df$name
 
 ## Function to prep data as percent changes
 prep_month_pc <- function(adm_df){
-  
+
   adm_long_df <- adm_df %>%
     filter(date >= ymd("2022-01-01"),
            date <= ymd("2023-12-01")) %>%
@@ -459,7 +459,7 @@ prep_month_pc <- function(adm_df){
                 names_from = year) %>%
     #filter(!is.na(`2024`)) %>%
     mutate(pc = (`2023` - `2022`) / `2022` * 100)
-  
+
   return(adm_long_df)
 }
 
@@ -522,7 +522,7 @@ city_df$ADM1_FR <- city_df$name
 
 ## Function to prep data as percent changes
 prep_month_pc <- function(adm_df){
-  
+
   adm_long_df <- adm_df %>%
     filter(date >= ymd("2023-01-01"),
            date <= ymd("2024-06-01")) %>%
@@ -534,7 +534,7 @@ prep_month_pc <- function(adm_df){
                 names_from = year) %>%
     filter(!is.na(`2024`)) %>%
     mutate(pc = (`2024` - `2023`) / `2023` * 100)
-  
+
   return(adm_long_df)
 }
 
@@ -576,15 +576,3 @@ city_pc_df %>%
   facet_wrap(~ADM1_FR,
              scales = "free_y")
 ```
-
-
-
-
-
-
-
-
-
-
-
-

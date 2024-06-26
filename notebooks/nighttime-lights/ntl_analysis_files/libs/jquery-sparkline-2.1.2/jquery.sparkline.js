@@ -543,9 +543,9 @@
             ret = values[idx];
         }
 
-        return { 
-            m: ret, 
-            idx: idx 
+        return {
+            m: ret,
+            idx: idx
         };
     };
 
@@ -1269,7 +1269,7 @@
                 };
             } else if (colorMap) {
                 if (colorMap.get === undefined) {
-                    colorMap = new RangeMap(colorMap); 
+                    colorMap = new RangeMap(colorMap);
                 }
                 this.colorMapFunction = function(sparkline, options, index, value) {
                     return colorMap.get(value);
@@ -2246,7 +2246,7 @@
             this.values = $.map(values, Number);
             var rawWidth = (values.length * barWidth * this.target.devicePixelRatio) + ((values.length - 1) * barSpacing * this.target.devicePixelRatio);
             this.xScale = Math.min(1, rawWidth ? width * this.target.devicePixelRatio / rawWidth : 1);
-            this.width = rawWidth * this.xScale; 
+            this.width = rawWidth * this.xScale;
 
             this.initColorMap();
         },
@@ -2415,19 +2415,19 @@
             this.min = min;
             this.max = max;
             this.range = max - min;
-			
+
 			// GRADIENT
 			var colors = options.get('rangeColors');
 			if (options.get('gradient') && colors.length > 1) {
 				var rainbow = new Rainbow();
 				rainbow.setSpectrumByArray(colors);
 				rainbow.setNumberRange(0, this.values.length);
-				
+
 				for (var i = 0; i < this.values.length; i++) {
 					colors[i] = rainbow.colorAt(i);
 				}
 			}
-			
+
 			this.rangeColors = colors;
             this.shapes = {};
             this.valueShapes = {};
@@ -2887,9 +2887,9 @@
      * ]
      * let 1 pixel = 1 minute
      * let 8 am be the sparkline begin
-     * let 8 pm be the sparkline finish 
+     * let 8 pm be the sparkline finish
      * let 720 pixels be the total visible duration
-     * then graph 
+     * then graph
      *  |white for 300 pixels||red for 60 pixels||green for 60 pixels||blue for 300 pixels||white for 120 pixels|
      */
 ;(function ($) {
@@ -2910,8 +2910,8 @@
                 val = Math.abs(val);
                 return isNaN(val) ? 0 : val;
             }
-            var i, data, segment, beginMinutes, finishMinutes, durationMinutes, 
-                pixelsPerMinute, userInitHandler, timeMarkPixels, isVerticalOrientation, 
+            var i, data, segment, beginMinutes, finishMinutes, durationMinutes,
+                pixelsPerMinute, userInitHandler, timeMarkPixels, isVerticalOrientation,
                 timeMarkInterval, timeMarkOffset, timeMark, tick, tickSize;
             timeline._super.init.call(this, el, values, options, width, height);
             // required by barHighlightMixin
@@ -2972,10 +2972,10 @@
                     if (data) {
                         // the minus 2 is to prevent clipping the segment
                         segment = {
-                            x: timeMarkOffset, 
-                            y: timeMarkOffset, 
-                            w: width - (timeMarkOffset + 1), 
-                            h: height - (timeMarkOffset + 1), 
+                            x: timeMarkOffset,
+                            y: timeMarkOffset,
+                            w: width - (timeMarkOffset + 1),
+                            h: height - (timeMarkOffset + 1),
                             data: data
                         };
                         // TODO: adjust shape size for overlapping regions
@@ -3282,7 +3282,7 @@
 
                     done = true;
                 }
-            } 
+            }
             if (!done) {
               context.moveTo(path[0][0] + 0.5, path[0][1] + 0.5);
               for (i = 1, plen = path.length; i < plen; i++) {

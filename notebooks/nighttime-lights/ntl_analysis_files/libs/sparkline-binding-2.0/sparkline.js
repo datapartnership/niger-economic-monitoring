@@ -2,13 +2,13 @@ HTMLWidgets.widget({
   name: "sparkline",
   type: "output",
   factory: function(el, width, height) {
-    
+
     var instance = {};
-    
+
     return {
 
       renderValue: function(data) {
-        
+
         $(el).empty();
 
         // if renderTag provided then we will do three things
@@ -28,7 +28,7 @@ HTMLWidgets.widget({
           data.options.width = null;
         }
         $(el).sparkline(data.values, data.options);
-        
+
         // experimental addComposite function in R
         //   will add composites to data.composites
         if(data.composites) {
@@ -39,7 +39,7 @@ HTMLWidgets.widget({
             $(el).sparkline(spk.values,spk.options);
           });
         }
-        
+
         instance.data = data;
       },
 
@@ -54,5 +54,5 @@ HTMLWidgets.widget({
       }
 
     };
-  }  
+  }
 });

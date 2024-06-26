@@ -4,10 +4,10 @@
 git_dir <- file.path("/Users", "rmarty", "Library", "CloudStorage", "OneDrive-WBG", "Documents",
                      "GitHub", "niger-economic-monitoring", "notebooks", "nighttime-lights")
 
-data_dir <- file.path("/Users", "rmarty", "Library", "CloudStorage", "OneDrive-SharedLibraries-WBG", 
+data_dir <- file.path("/Users", "rmarty", "Library", "CloudStorage", "OneDrive-SharedLibraries-WBG",
                       "Development Data Partnership - Niger Economic Monitor", "Data")
 
-data_dir <- file.path("~/Dropbox/World Bank/Side Work/", 
+data_dir <- file.path("~/Dropbox/World Bank/Side Work/",
                       "Development Data Partnership - Niger Economic Monitor", "Data")
 
 boundaries_dir <- file.path(data_dir, "Boundaries")
