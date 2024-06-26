@@ -1,8 +1,8 @@
 # Movement Analysis
 
-A key driver in understanding economic activity is movement of people. Movement is useful in dtermining where people live, where they work and where the most activity takes place in a country. To understand this better, the Data Lab aims to use movement data from three datasets - Colocation Maps and Commuting Zones from Meta and Movement data from Mapbox. 
+A key driver in understanding economic activity is movement of people. Movement is useful in dtermining where people live, where they work and where the most activity takes place in a country. To understand this better, the Data Lab aims to use movement data from three datasets - Colocation Maps and Commuting Zones from Meta and Movement data from Mapbox.
 
-The West African region has been politically unstable in the recent year. In September 2023, Niger, Mali and Burkina Faso created an Alliance of Sahel States (AES) and in January 2024, decided to withdraw from the Economic Community of West African States (ECOWAS). This occurence followed the coup d'état in Niger in July 2023. Given this interdependence, this movement analysis takes into consideration movement across borders as far as data is available. 
+The West African region has been politically unstable in the recent year. In September 2023, Niger, Mali and Burkina Faso created an Alliance of Sahel States (AES) and in January 2024, decided to withdraw from the Economic Community of West African States (ECOWAS). This occurence followed the coup d'état in Niger in July 2023. Given this interdependence, this movement analysis takes into consideration movement across borders as far as data is available.
 
 ## Data
 
@@ -21,12 +21,12 @@ Commuting zones represent the areas where people spend most of their time and co
 
 #### Methodology and Data Collection
 
-- **Population sample**: Commuting Zones draws from a sample of people who use the Facebook mobile app and have enabled the Location Services setting. 
-- **Spatial methods**: The Commuting Zones spatial shapes are built by defining a community network. They start with a node for each city or town where people who use Facebook live. They define the edges of the graph using a formula. They then reduce the complexity of this graph using a Louvain clustering algorithm. Once they have a simplified network/graph, they use Voronoi shapes to define the polygon for the commuting zone. 
+- **Population sample**: Commuting Zones draws from a sample of people who use the Facebook mobile app and have enabled the Location Services setting.
+- **Spatial methods**: The Commuting Zones spatial shapes are built by defining a community network. They start with a node for each city or town where people who use Facebook live. They define the edges of the graph using a formula. They then reduce the complexity of this graph using a Louvain clustering algorithm. Once they have a simplified network/graph, they use Voronoi shapes to define the polygon for the commuting zone.
 
     (#residents moving from i to j + #residents moving from j to i) / (#residents in i + #residents in j)
 
-    
+
 - **Temporal span**: Commuting zones are rebuilt at most every 3 months, when the commuting zone shapes are generated using the previous few weeks of Location Services data.
 - **Minimum counts/size**: To generate a commuting zone, there must be at least 50 people estimated to live within its boundary and a minimum size of at least 1 kilometer by 1 kilometer.
 - **Estimated population (win_population)**: Estimated population within the zone (calculated from the publicly available Facebook High-Resolution Population Density Maps or WorldPop estimates). These population estimates are provided as counts per grid tile on the earth’s surface. They map each of these tiles to a commuting zone, then aggregate population by taking the sum of all the tiles within the commuting zone polygon defined in the geometry field. They then winsorizethe bottom and top 5% of commuting zones. This means that the population counts per commuting zone below the 5% percentile are replaced by the 5% percentile value, and those above the 95% percentile are replaced by the 95% percentile value. All commuting zones have a population of at least 50.
@@ -34,4 +34,4 @@ Commuting zones represent the areas where people spend most of their time and co
 
 ### Mapbox Movement
 
-Mapbox Movement data has currently been requested from Mapbox through the Development Data Partnership. The analysis will be published as soon as the data becomes available. 
+Mapbox Movement data has currently been requested from Mapbox through the Development Data Partnership. The analysis will be published as soon as the data becomes available.

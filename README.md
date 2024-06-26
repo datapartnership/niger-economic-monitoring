@@ -1,6 +1,6 @@
 # Niger Economic Monitoring
 
-> Using Alternative Data to Understand Impact of Coup and Sanctions on the Niger Economy 
+> Using Alternative Data to Understand Impact of Coup and Sanctions on the Niger Economy
 
 
 ## Contributing
@@ -14,5 +14,3 @@ If you have any feedback, encounter issues, or want to suggest improvements, ple
 ## License
 
 This project is licensed under the [**Mozilla Public License**](https://opensource.org/license/mpl-2-0/) - see the [LICENSE](LICENSE) file for details.
-
-
