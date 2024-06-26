@@ -37,7 +37,7 @@ jobs:
         if: github.ref == 'refs/heads/main' && job.status == 'success'
         with:
           path: "_build/html"
-          
+
   deploy-book:
     needs: build-book
     permissions:
