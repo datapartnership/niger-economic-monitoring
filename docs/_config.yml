@@ -29,9 +29,7 @@ html:
 #######################################################################################
 # Execution settings
 execute:
-  execute_notebooks: force
-  exclude_patterns:
-    - 'notebooks/**/*.ipynb'
+  execute_notebooks: "off"
   stderr_output: remove
 
 #######################################################################################
