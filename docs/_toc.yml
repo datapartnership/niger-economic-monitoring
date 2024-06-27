@@ -9,7 +9,7 @@ parts:
       - file: docs/data
   - caption: Data Products
     chapters:
-      - file: notebooks/conflict/conflict-in-niger.ipynb
+      - file: notebooks/conflict/Niger Conflict Data.ipynb
       - file: reports/agriculture/report.ipynb
         sections:
           - file: notebooks/agriculture/drought.ipynb
