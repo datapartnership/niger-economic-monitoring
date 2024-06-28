@@ -18,6 +18,8 @@ parts:
       - file: notebooks/movement/README
         sections:
           - file: notebooks/movement/colocation.ipynb
+          - file: notebooks/movement/commuting_zones.ipynb
+      - file: notebooks/sample-indicators/conflict-and-commuting-zones.ipynb
   - caption: Acknowledgements
     chapters:
       - file: docs/team
