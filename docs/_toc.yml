@@ -6,7 +6,6 @@ parts:
   - caption: Introduction to Data Goods
     chapters:
       - file: docs/introduction-to-data-goods
-      - file: docs/data
   - caption: Data Products
     chapters:
       - file: notebooks/conflict/conflict-in-niger.ipynb
