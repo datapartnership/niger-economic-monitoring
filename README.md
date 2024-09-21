@@ -48,4 +48,4 @@ This projects is licensed under the [**Mozilla Public License**](https://opensou
 
 ## Code of Conduct
 
-The <span style="color:#3EACAD">template</span> maintains a [Code of Conduct](docs/CODE_OF_CONDUCT.md) to ensure an inclusive and respectful environment for everyone. Please adhere to it in all interactions within our community.
+The <span style="color:#3EACAD">template</span> used to create this project maintains a [Code of Conduct](docs/CODE_OF_CONDUCT.md) to ensure an inclusive and respectful environment for everyone. Please adhere to it in all interactions within our community.
