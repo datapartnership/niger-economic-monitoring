@@ -30,6 +30,7 @@ pip install tqdm
 pip install dask[distributed]
 pip install plotnine
 pip install rasterstats
+pip install xee
 ```
 
 ## Notebooks
